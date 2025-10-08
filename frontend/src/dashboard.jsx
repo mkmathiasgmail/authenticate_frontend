@@ -1,0 +1,11 @@
+
+const Dashboard = () => {
+    return (
+        <div className="text-center mt-5">
+            <h1>Dashboard Page</h1>
+            <p>This is the register page content.</p>
+        </div>
+    );
+};
+
+export default Dashboard;
