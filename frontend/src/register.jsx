@@ -1,98 +1,149 @@
 import { useState } from 'react';
-import axios from 'axios'; // Import axios for making API requests
-import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
+import axios from 'axios';
+import { useNavigate, Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { User, Mail, Lock, Loader2, ArrowLeft, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 const Register = () => {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [error, setError] = useState(''); // State to store error message
-    const [success, setSuccess] = useState(''); // State to store success message
-    const [loading, setLoading] = useState(false); // State to manage loading state
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true); // Set loading to true while waiting for response
-        // Clear any previous errors
-        // Clear any previous success messages
+        setLoading(true);
+        setError('');
+        setSuccess('');
 
         try {
-            const response = await axios.post('http://127.0.0.1:8000/api/register', {
+            await axios.post('http://127.0.0.1:8000/api/register', {
                 name,
                 email,
                 password,
             });
-            // Handle success
-            console.log("Response:", response.data); // Log the response to check success
-            // Handle success response: display the success message and handle further actions
-            setSuccess("Registration successful! Please log in.");
-            setLoading(false); // Set loading to false when the request is done
+            setSuccess("Compte créé avec succès ! Vous pouvez vous connecter.");
+            setTimeout(() => navigate('/login'), 2000);
         } catch (error) {
-            console.error("Error response:", error.response); // Log the full response
-
-            // Check if there are validation errors
-            if (error.response.data.errors) {
-                setError(error.response.data.errors.email[0]); // "Registration failed. Please try again."
+            if (error.response?.data?.errors) {
+                const firstError = Object.values(error.response.data.errors)[0][0];
+                setError(firstError);
             } else {
-                setError("Registration failed.");
+                setError("Une erreur est survenue lors de l'inscription.");
             }
         } finally {
-            setLoading(false); // Reset loading state
+            setLoading(false);
         }
     };
 
     return (
-        <div className="d-flex justify-content-center align-items-center vh-100">
-            <div className="card shadow" style={{ width: "350px", borderRadius: "16px" }}>
-                <div className="card-body">
-                    <h2 className="text-center mb-4" style={{ fontWeight: "bold" }}>Register</h2>
-                    <form onSubmit={handleSubmit}>
-                        <div className="mb-3">
-                            <label htmlFor="name" className="form-label text-center w-100" style={{ fontWeight: "500" }}>Name</label>
-                            <input
-                                type="text"
-                                id="name"
-                                className="form-control"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                required
-                                style={{ borderRadius: "8px" }}
-                            />
+        <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
+            <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="max-w-md w-full"
+            >
+                <Link to="/" className="inline-flex items-center gap-2 text-slate-500 hover:text-slate-800 mb-8 transition-colors">
+                    <ArrowLeft size={18} />
+                    Retour à l'accueil
+                </Link>
+
+                <div className="bg-white p-8 rounded-3xl shadow-xl shadow-slate-200/60 border border-slate-100">
+                    <div className="mb-8">
+                        <h2 className="text-3xl font-bold text-slate-900">Créer un compte</h2>
+                        <p className="text-slate-500 mt-2">Rejoignez-nous pour accéder à toutes les fonctionnalités.</p>
+                    </div>
+
+                    <form onSubmit={handleSubmit} className="space-y-5">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-slate-700 ml-1">Nom complet</label>
+                            <div className="relative">
+                                <User className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                                <input
+                                    type="text"
+                                    className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    required
+                                    placeholder="Jean Dupont"
+                                />
+                            </div>
                         </div>
-                        <div className="mb-3">
-                            <label htmlFor="email" className="form-label text-center w-100" style={{ fontWeight: "500" }}>Email</label>
-                            <input
-                                type="email"
-                                id="email"
-                                className="form-control"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                                style={{ borderRadius: "8px" }}
-                            />
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-slate-700 ml-1">Email</label>
+                            <div className="relative">
+                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                                <input
+                                    type="email"
+                                    className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
+                                    placeholder="nom@exemple.com"
+                                />
+                            </div>
                         </div>
-                        <div className="mb-3">
-                            <label htmlFor="password" className="form-label text-center w-100" style={{ fontWeight: "500" }}>Password</label>
-                            <input
-                                type="password"
-                                id="password"
-                                className="form-control"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                                style={{ borderRadius: "8px" }}
-                            />
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-slate-700 ml-1">Mot de passe</label>
+                            <div className="relative">
+                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                                <input
+                                    type="password"
+                                    className="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    required
+                                    placeholder="••••••••"
+                                />
+                            </div>
                         </div>
-                        <button type="submit" className="btn btn-primary w-100" disabled={loading} style={{ borderRadius: "8px", background: "linear-gradient(90deg,#1877f2,#2563eb)" }}>
-                            {loading ? "Registering..." : "Register"}
+
+                        <button 
+                            type="submit" 
+                            disabled={loading}
+                            className="w-full py-3 bg-blue-600 text-white font-semibold rounded-xl hover:bg-blue-700 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        >
+                            {loading ? <Loader2 className="animate-spin" size={20} /> : "S'inscrire"}
                         </button>
                     </form>
-                    {error && <div className="alert alert-danger mt-3">{error}</div>}
-                    {success && <div className="alert alert-success mt-3">{success}</div>}
+
+                    {error && (
+                        <motion.div 
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="mt-6 p-4 bg-red-50 border border-red-100 rounded-xl flex items-center gap-3 text-red-600 text-sm"
+                        >
+                            <AlertCircle size={18} />
+                            {error}
+                        </motion.div>
+                    )}
+
+                    {success && (
+                        <motion.div 
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="mt-6 p-4 bg-green-50 border border-green-100 rounded-xl flex items-center gap-3 text-green-600 text-sm"
+                        >
+                            <CheckCircle2 size={18} />
+                            {success}
+                        </motion.div>
+                    )}
+
+                    <p className="text-center mt-8 text-slate-500 text-sm">
+                        Déjà un compte ?{' '}
+                        <Link to="/login" className="text-blue-600 font-semibold hover:underline">
+                            Se connecter
+                        </Link>
+                    </p>
                 </div>
-            </div>
-            </div>
-        );
-    }
+            </motion.div>
+        </div>
+    );
+};
 
 export default Register;
